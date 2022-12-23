@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { Button } from "../../components/Button";
@@ -6,23 +6,65 @@ import { Headers } from "../../components/Headers";
 import { Logo } from "../logo/Logo";
 import { Containner } from "../register/Register";
 import { RiDeleteBin5Fill } from "react-icons/ri";
+import { deleteUrls, getUserMe, postShorten } from "../../servers/UserServices";
+import { AuthContext } from "../../providers/Auth";
 export const Links = () => {
+  const { token, setToken, user, setUser } = React.useContext(AuthContext);
   const [link, setlink] = useState("");
   const navigate = useNavigate();
+  let { name, shortenedUrls } = user;
+
+  console.log(shortenedUrls);
+  const shorten = {
+    url: link,
+  };
+  const config = {
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
   function handleForm(e) {
     e.preventDefault();
-    navigate("/");
+    const userShorten = postShorten(shorten, config);
+    userShorten
+      .then((response) => {
+        const { shortUrl } = response.data;
+        console.log(shortUrl);
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
-  const register = {
-    link: link,
-  };
+  useEffect(() => {
+    const ALLUserMe = getUserMe(config);
+    ALLUserMe.then((response) => {
+      setUser(response.data);
+    }).catch(() => {
+      console.log("error");
+    });
+  }, []);
+  function handleDelete() {
+    /*  const deleteShorten = deleteUrls(id, config);
+    deleteShorten
+      .then((response) => {
+        console.log("ok");
+      })
+      .catch((error) => {
+        console.log(error);
+      }); */
+  }
+
   return (
     <>
       <Headers
         cadastrar={"home"}
         entrar={"ranking"}
         ranking={"sair"}
-        welcome={"Seja bem-vindo(a), Pessoa!"}
+        welcome={`Seja bem-vindo(a), ${name}!`}
         link={true}
       />
 
@@ -37,36 +79,32 @@ export const Links = () => {
         <Button text={"Encurtar link"} type="submit" />
       </Containner>
       <MyLinks>
-        <AllLinks>
-          <div className="information">
-            <p>https://www.driven.com.br</p>
-            <p>e4231A</p>
-            <p>Quantidade de visitantes: 271</p>
-          </div>
-          <div className="deleteLinks">
-            <RiDeleteBin5Fill className="delete" />
-          </div>
-        </AllLinks>
-        <AllLinks>
-          <div className="information">
-            <p>https://www.driven.com.br</p>
-            <p>e4231A</p>
-            <p>Quantidade de visitantes: 271</p>
-          </div>
-          <div className="deleteLinks">
-            <RiDeleteBin5Fill className="delete" />
-          </div>
-        </AllLinks>
-        <AllLinks>
-          <div className="information">
-            <p>https://www.driven.com.br</p>
-            <p>e4231A</p>
-            <p>Quantidade de visitantes: 271</p>
-          </div>
-          <div className="deleteLinks">
-            <RiDeleteBin5Fill className="delete" />
-          </div>
-        </AllLinks>
+        {shortenedUrls?.map((i) => (
+          <AllLinks>
+            <div className="information">
+              <p>{i.url}</p>
+              <p>{i.shortUrl}</p>
+              <p>Quantidade de visitantes: {i.visitCount}</p>
+            </div>
+            <div className="deleteLinks">
+              <RiDeleteBin5Fill
+                onClick={function () {
+                  let id = i.id;
+                  id = String(id);
+                  const deleteShorten = deleteUrls(id, config);
+                  deleteShorten
+                    .then((response) => {
+                      console.log("ok");
+                    })
+                    .catch((error) => {
+                      console.log(error);
+                    });
+                }}
+                className="delete"
+              />
+            </div>
+          </AllLinks>
+        ))}
       </MyLinks>
     </>
   );
