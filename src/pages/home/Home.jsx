@@ -3,17 +3,20 @@ import { Headers } from "../../components/Headers";
 import { Logo } from "../logo/Logo";
 import { Ranking } from "../ranking/Ranking";
 import styled from "styled-components";
+import { AuthContext } from "../../providers/Auth";
 export const Home = () => {
-  const tokenValidation = true;
+  const { token, setToken,user } = React.useContext(AuthContext);
+  let { name, shortenedUrls } = user;
+  name= !name ? 'pessoa':name
   let welcome;
   let cadastrar;
   let entrar;
   let ranking;
-  cadastrar = tokenValidation ? "home" : "cadastrar";
-  entrar = tokenValidation ? "ranking" : "entrar";
-  ranking = tokenValidation ? "sair" : null;
-  welcome = tokenValidation ? "Seja bem-vindo(a), Pessoa!" : null;
-  const link = !tokenValidation ?null:'ranking'
+  cadastrar = token ? "home" : "cadastrar";
+  entrar = token ? "ranking" : "entrar";
+  ranking = token ? "sair" : null;
+  welcome = token ?` Seja bem-vindo(a), ${name}!` : null;
+  const link = !token ? null : "ranking";
   return (
     <>
       <Headers
@@ -26,9 +29,7 @@ export const Home = () => {
       <Containner>
         <Logo />
         <Ranking />
-        {tokenValidation ? null : (
-          <h1>Crie sua conta para usar nosso serviço!</h1>
-        )}
+        {token ? null : <h1>Crie sua conta para usar nosso serviço!</h1>}
       </Containner>
     </>
   );
