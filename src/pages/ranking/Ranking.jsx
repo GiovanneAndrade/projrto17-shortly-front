@@ -1,23 +1,25 @@
 import React from "react";
 import styled from "styled-components";
 import Img from "../../assets/ranking.png";
+import { AuthContext } from "../../providers/Auth";
 export const Ranking = () => {
+  const { ranking, token, setToken } = React.useContext(AuthContext);
+  //console.log(ranking);
   return (
     <>
       <Containner>
         <img src={Img} />
         Ranking
       </Containner>
+
       <RankingAll>
-        <p>1. Fulaninha - 32 links - 1.703.584 visualizações</p>
-        <p>1. Fulaninha - 32 links - 1.703.584 visualizações</p>
-        <p>5. DEFINITIVAMENTE_NAO_E_UM_BOT - 12345252 links - 37.707 visualizações</p>
-        <p>1. Fulaninha - 32 links - 1.703.584 visualizações</p>
-        <p>1. Fulaninha - 32 links - 1.703.584 visualizações</p>
-        <p>1. Fulaninha - 32 links - 1.703.584 visualizações</p>
-        
+        {ranking.map((ranking, index) => (
+          <p key={index}>
+            1. {ranking.name} - {ranking.linkscount} links -{" "}
+            {ranking.visitcount} visualizações
+          </p>
+        ))}
       </RankingAll>
-    
     </>
   );
 };
